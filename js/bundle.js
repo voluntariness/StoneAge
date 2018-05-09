@@ -367,19 +367,35 @@ var SaAppDispatcher = require('../dispatcher/SaAppDispatcher');
 var SaAppConstants = require('../constants/SaAppConstants');
 var ActionTypes = SaAppConstants.ActionTypes;
 module.exports = {
-    clickMenu: function(pageID) {
+    clickMenu: function(primaryKey) {
         SaAppDispatcher.dispatch({
             type: ActionTypes.CLICK_MENU,
-            pageID: pageID
+            primaryKey: primaryKey
         });
     }
 };
 
-},{"../constants/SaAppConstants":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\constants\\SaAppConstants.js","../dispatcher/SaAppDispatcher":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\dispatcher\\SaAppDispatcher.js"}],"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\app":[function(require,module,exports){
+},{"../constants/SaAppConstants":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\constants\\SaAppConstants.js","../dispatcher/SaAppDispatcher":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\dispatcher\\SaAppDispatcher.js"}],"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\actions\\SaAppActionCreators.js":[function(require,module,exports){
+'use strict';
+var SaAppDispatcher = require('../dispatcher/SaAppDispatcher');
+var SaAppConstants = require('../constants/SaAppConstants');
+var ActionTypes = SaAppConstants.ActionTypes;
+module.exports = {
+    init: function() {
+        SaAppDispatcher.dispatch({
+            type: ActionTypes.INIT
+        });
+    }
+};
+
+},{"../constants/SaAppConstants":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\constants\\SaAppConstants.js","../dispatcher/SaAppDispatcher":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\dispatcher\\SaAppDispatcher.js"}],"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\app.js":[function(require,module,exports){
 
 var SaApp = require('./components/SaApp.react');
+var SaAppActionCreators = require('./actions/SaAppActionCreators');
 var React = require('react');
 window.React = React;
+
+SaAppActionCreators.init();
 
 React.render(
     React.createElement(SaApp, null),
@@ -392,28 +408,98 @@ React.render(
 
 
 
-},{"./components/SaApp.react":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\components\\SaApp.react.js","react":"C:\\Users\\Ivan\\node_modules\\react\\react.js"}],"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\components\\MenuItem.react.js":[function(require,module,exports){
+},{"./actions/SaAppActionCreators":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\actions\\SaAppActionCreators.js","./components/SaApp.react":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\components\\SaApp.react.js","react":"C:\\Users\\Ivan\\node_modules\\react\\react.js"}],"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\components\\MainSection.react.js":[function(require,module,exports){
+
+var SaAppConstants = require('../constants/SaAppConstants');
+var MenuStore = require('../stores/MenuStore');
 var React = require('react');
-var MenuActionCreators = require('../actions/MenuActionCreators');
-var MenuItem = React.createClass({displayName: "MenuItem",
-    propTypes: {
-        pageID: React.PropTypes.number,
-        name: React.PropTypes.string
+var MenuTypes = SaAppConstants.MenuTypes;
+var ThreeBrothersSection = require('./ThreeBrothersSection.react');
+
+var selectPageSection = function (pk) {
+
+    switch (pk) {
+        case MenuTypes.HOME:
+            return (
+                React.createElement("h3", null, " 這是首頁 ")
+            );
+        case MenuTypes.PAGE_A:
+            return (
+                React.createElement(ThreeBrothersSection, null)
+            );
+
+        case MenuTypes.PAGE_B:
+            return (
+                React.createElement("h3", null, " 這是 Page B ")
+            );
+        default:
+            /* undefault page */
+
+    }
+};
+
+var getStateData = function () {
+
+}
+
+var MainSection = React.createClass({displayName: "MainSection",
+    getInitialState: function() {
+        return {
+            currentPrimaryKey: MenuStore.getCurrentPrimaryKey()
+        };
+    },
+    componentDidMount: function() {
+
+        MenuStore.addListener('change', this._onChange);
+    },
+    componentWillUnmonunt: function() {
+
+        MenuStore.removeListener('change', this._onChange);
+
     },
     render: function() {
-        var name = this.props.name;
+        var PageSection = selectPageSection(this.state.currentPrimaryKey);
         return (
-            React.createElement("li", null, 
-                React.createElement("a", {href: "#", 
-                    onClick: this._onClick
-                }, 
-                    name
+            React.createElement("div", {className: "col-xs-12"}, 
+                React.createElement("hr", null), 
+                PageSection
+            )
+        );
+    },
+    _onChange: function() {
+        this.setState(this.getInitialState());
+
+    }
+
+});
+
+module.exports = MainSection;
+
+
+},{"../constants/SaAppConstants":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\constants\\SaAppConstants.js","../stores/MenuStore":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\stores\\MenuStore.js","./ThreeBrothersSection.react":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\components\\ThreeBrothersSection.react.js","react":"C:\\Users\\Ivan\\node_modules\\react\\react.js"}],"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\components\\MenuItem.react.js":[function(require,module,exports){
+var React = require('react');
+var MenuActionCreators = require('../actions/MenuActionCreators');
+
+var MenuItem = React.createClass({displayName: "MenuItem",
+    propTypes: {
+        item: React.PropTypes.object,
+        currentPrimaryKey: React.PropTypes.string
+    },
+    render: function() {
+        var item = this.props.item;
+        var classes = [
+            (item.primaryKey === this.props.currentPrimaryKey ? 'active' : '')
+        ].join(' ');
+        return (
+            React.createElement("li", {className: classes}, 
+                React.createElement("a", {href: "#", onClick: this._onClick}, 
+                    item.name
                 )
             )
         );
     },
     _onClick: function() {
-        MenuActionCreators.clickMenu(this.props.pageID);
+        MenuActionCreators.clickMenu(this.props.item.primaryKey);
     }
 });
 
@@ -426,7 +512,8 @@ var MenuItem = require('./MenuItem.react');
 
 function getMenuFromStores() {
     return {
-        menus: MenuStore.getMenuItems()
+        menus: MenuStore.getMenuItems(),
+        currentPrimaryKey: MenuStore.getCurrentPrimaryKey()
     };
 }
 
@@ -436,57 +523,84 @@ var MenuSection = React.createClass({displayName: "MenuSection",
         return getMenuFromStores();
     },
     componentDidMount: function() {
+        MenuStore.addListener('change', this._onChange);
+    },
+    componentWillUnmonunt: function() {
 
+        MenuStore.removeListener('change', this._onChange);
     },
     render: function() {
         var menuItems = this.state.menus.map(function(item) 
         {
             return (
                 React.createElement(MenuItem, {
-                    key: item.pageID, 
-                    pageID: item.pageID, 
-                    name: item.name}
+                    key: item.primaryKey, 
+                    item: item, 
+                    currentPrimaryKey: this.state.currentPrimaryKey}
                 )
             );
         }, this);
         return (
-            React.createElement("nav", {className: "navbar navbar-default navbar-fixed-top"}, 
-                React.createElement("div", {className: "collapse navbar-collapse", id: "bs-example-navbar-collapse-1"}, 
-                    React.createElement("ul", {className: "nav navbar-nav"}, 
-                        menuItems
-                    )
-                )
+            React.createElement("ul", {className: "nav nav-pills"}, 
+                menuItems
             )
         );
     },
     _onChange: function() {
+        this.setState(getMenuFromStores());
     }
 });
 module.exports = MenuSection;
 
 },{"../stores/MenuStore":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\stores\\MenuStore.js","./MenuItem.react":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\components\\MenuItem.react.js","react":"C:\\Users\\Ivan\\node_modules\\react\\react.js"}],"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\components\\SaApp.react.js":[function(require,module,exports){
 
-// var MainSection = require('./MainSection.react');
+var MainSection = require('./MainSection.react');
 var MenuSection = require('./MenuSection.react');
 var React = require('react');
 
 var SaApp = React.createClass({displayName: "SaApp",
     render: function() {
         return (
-            React.createElement("div", {className: "sa-app"}, 
-                React.createElement(MenuSection, null)
+            React.createElement("div", null, 
+                React.createElement("header", null, 
+                    React.createElement(MenuSection, null)
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement(MainSection, null)
+                )
             )
         );
     }
 });
 module.exports = SaApp;
 
-},{"./MenuSection.react":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\components\\MenuSection.react.js","react":"C:\\Users\\Ivan\\node_modules\\react\\react.js"}],"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\constants\\SaAppConstants.js":[function(require,module,exports){
+},{"./MainSection.react":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\components\\MainSection.react.js","./MenuSection.react":"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\components\\MenuSection.react.js","react":"C:\\Users\\Ivan\\node_modules\\react\\react.js"}],"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\components\\ThreeBrothersSection.react.js":[function(require,module,exports){
+var React = require('react');
+
+var ThreeBrothers = React.createClass({displayName: "ThreeBrothers",
+    render: function () {
+        return (
+            React.createElement("div", {className: "row"}, 
+                React.createElement("h3", null, " Three Brothers ")
+            )
+        );
+    }
+});
+
+module.exports = ThreeBrothers;
+
+},{"react":"C:\\Users\\Ivan\\node_modules\\react\\react.js"}],"C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\constants\\SaAppConstants.js":[function(require,module,exports){
 var keyMirror = require('keymirror');
 
 module.exports = {
     ActionTypes: keyMirror({
+        INIT: null,
         CLICK_MENU: null
+    }),
+    MenuTypes: keyMirror({
+        HOME: null,
+        PAGE_A: null,
+        PAGE_B: null
     })
 };
 
@@ -504,28 +618,53 @@ var EventEmitter = require('events').EventEmitter;
 var SaAppConstants = require('../constants/SaAppConstants');
 
 var ActionTypes = SaAppConstants.ActionTypes;
+var MenuTypes = SaAppConstants.MenuTypes;
 
 var _menus = [
-    {pageID: 1, name: 'AA'},
-    {pageID: 2, name: 'BB'}
+    {
+        primaryKey: MenuTypes.HOME, 
+        name: 'Home'
+    }, {
+        primaryKey: MenuTypes.PAGE_A, 
+        name: 'Page-A'
+    }, {
+        primaryKey: MenuTypes.PAGE_B, 
+        name: 'Page-B'
+    }
 ];
+
+var CHANGE_EVENT = 'change';
+
+var _currentPrimaryKey = null;
 
 var MenuStore = assign({}, EventEmitter.prototype, {
     init: function() {
-        
+        _currentPrimaryKey = _currentPrimaryKey || _menus[0].primaryKey;
     },
-    getMenuItems: function () {
+    getCurrentPrimaryKey: function() {
+        return _currentPrimaryKey;
+    },
+    getMenuItems: function() {
         return _menus;
+    },
+    emitChange: function() {
+        this.emit(CHANGE_EVENT);
     }
 });
 MenuStore.dispatchToken = SaAppDispatcher.register(function(action) {
     switch (action.type) {
         case ActionTypes.CLICK_MENU:
-            console.log(action.pageID);
+            _currentPrimaryKey = action.primaryKey;
+            MenuStore.emitChange();
+            break;
+        case ActionTypes.INIT:
+            MenuStore.init();
             break;
         default:
+
     }
 });
+
 module.exports = MenuStore;
 
 
@@ -20588,4 +20727,4 @@ module.exports = warning;
 },{"./emptyFunction":"C:\\Users\\Ivan\\node_modules\\react\\lib\\emptyFunction.js","_process":"C:\\Users\\Ivan\\AppData\\Roaming\\npm\\node_modules\\watchify\\node_modules\\browserify\\node_modules\\process\\browser.js"}],"C:\\Users\\Ivan\\node_modules\\react\\react.js":[function(require,module,exports){
 module.exports = require('./lib/React');
 
-},{"./lib/React":"C:\\Users\\Ivan\\node_modules\\react\\lib\\React.js"}]},{},["C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\app"]);
+},{"./lib/React":"C:\\Users\\Ivan\\node_modules\\react\\lib\\React.js"}]},{},["C:\\Users\\Ivan\\Documents\\WebSide\\ivan\\StoneAge\\js\\app.js"]);

@@ -1,0 +1,30 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\Program Files (x86)\\nodejs\\\\node.exe',
+1 verbose cli   'C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'run',
+1 verbose cli   'build' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.35
+4 verbose node symlink C:\Program Files (x86)\nodejs\\node.exe
+5 verbose run-script [ 'prebuild', 'build', 'postbuild' ]
+6 info prebuild flux-chat@0.0.2
+7 info build flux-chat@0.0.2
+8 verbose unsafe-perm in lifecycle true
+9 info flux-chat@0.0.2 Failed to exec build script
+10 error flux-chat@0.0.2 build: `NODE_ENV=production browserify . | uglifyjs -cm > js/bundle.min.js`
+10 error Exit status 255
+11 error Failed at the flux-chat@0.0.2 build script.
+11 error This is most likely a problem with the flux-chat package,
+11 error not with npm itself.
+11 error Tell the author that this fails on your system:
+11 error     NODE_ENV=production browserify . | uglifyjs -cm > js/bundle.min.js
+11 error You can get their info via:
+11 error     npm owner ls flux-chat
+11 error There is likely additional logging output above.
+12 error System Windows_NT 6.1.7601
+13 error command "C:\\Program Files (x86)\\nodejs\\\\node.exe" "C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "run" "build"
+14 error cwd C:\Users\Ivan\Documents\WebSide\ivan\StoneAge
+15 error node -v v0.10.35
+16 error npm -v 1.4.28
+17 error code ELIFECYCLE
+18 verbose exit [ 1, true ]

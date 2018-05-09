@@ -3,10 +3,9 @@ var SaAppDispatcher = require('../dispatcher/SaAppDispatcher');
 var SaAppConstants = require('../constants/SaAppConstants');
 var ActionTypes = SaAppConstants.ActionTypes;
 module.exports = {
-    clickMenu: function(primaryKey) {
+    init: function() {
         SaAppDispatcher.dispatch({
-            type: ActionTypes.CLICK_MENU,
-            primaryKey: primaryKey
+            type: ActionTypes.INIT
         });
     }
 };

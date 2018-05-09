@@ -1,24 +1,26 @@
 var React = require('react');
 var MenuActionCreators = require('../actions/MenuActionCreators');
+
 var MenuItem = React.createClass({
     propTypes: {
-        pageID: React.PropTypes.number,
-        name: React.PropTypes.string
+        item: React.PropTypes.object,
+        currentPrimaryKey: React.PropTypes.string
     },
     render: function() {
-        var name = this.props.name;
+        var item = this.props.item;
+        var classes = [
+            (item.primaryKey === this.props.currentPrimaryKey ? 'active' : '')
+        ].join(' ');
         return (
-            <li>
-                <a href="#"
-                    onClick={this._onClick}
-                > 
-                    {name} 
+            <li className={classes}>
+                <a href="#"onClick={this._onClick}>
+                    {item.name} 
                 </a>
             </li>
         );
     },
     _onClick: function() {
-        MenuActionCreators.clickMenu(this.props.pageID);
+        MenuActionCreators.clickMenu(this.props.item.primaryKey);
     }
 });
 
